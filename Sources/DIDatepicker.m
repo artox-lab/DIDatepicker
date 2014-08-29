@@ -7,8 +7,6 @@
 #import "DIDatepickerDateView.h"
 
 
-const NSTimeInterval kSecondsInDay = 86400;
-const NSInteger kMondayOffset = 2;
 const CGFloat kDIDetepickerHeight = 60.;
 const CGFloat kDIDatepickerSpaceBetweenItems = 15.;
 
@@ -69,8 +67,6 @@ const CGFloat kDIDatepickerSpaceBetweenItems = 15.;
     }
 
     [self updateSelectedDatePosition];
-
-    [self sendActionsForControlEvents:UIControlEventValueChanged];
 }
 
 - (UIScrollView *)datesScrollView
@@ -79,6 +75,7 @@ const CGFloat kDIDatepickerSpaceBetweenItems = 15.;
         _datesScrollView = [[UIScrollView alloc] initWithFrame:self.bounds];
         _datesScrollView.showsHorizontalScrollIndicator = NO;
         _datesScrollView.autoresizingMask = self.autoresizingMask;
+        _datesScrollView.scrollsToTop = NO;
         [self addSubview:_datesScrollView];
     }
     return _datesScrollView;
@@ -98,97 +95,6 @@ const CGFloat kDIDatepickerSpaceBetweenItems = 15.;
 
 
 #pragma mark Public methods
-
-- (void)fillDatesFromCurrentDate:(NSInteger)nextDatesCount
-{
-    NSAssert(nextDatesCount < 1000, @"Too much dates");
-
-    NSMutableArray *dates = [[NSMutableArray alloc] init];
-    for (NSInteger day = 0; day < nextDatesCount; day++) {
-        [dates addObject:[NSDate dateWithTimeIntervalSinceNow:day * kSecondsInDay]];
-    }
-
-    self.dates = dates;
-}
-
-- (void)fillDatesFromDate:(NSDate *)fromDate numberOfDays:(NSInteger)nextDatesCount
-{
-    NSAssert(nextDatesCount < 1000, @"Too much dates");
-
-    NSMutableArray *dates = [[NSMutableArray alloc] init];
-    for (NSInteger day = 0; day < nextDatesCount; day++)
-    {
-        [dates addObject:[fromDate dateByAddingTimeInterval:day * kSecondsInDay]];
-    }
-    
-    self.dates = dates;
-}
-
-- (void)fillCurrentWeek
-{
-    NSDate *today = [NSDate date];
-    NSCalendar *calendar = [NSCalendar currentCalendar];
-    NSDateComponents *todayComponents = [calendar components:NSWeekdayCalendarUnit fromDate:today];
-
-    NSMutableArray *dates = [[NSMutableArray alloc] init];
-    for (NSInteger weekday = 0; weekday < 7; weekday++) {
-        [dates addObject:[NSDate dateWithTimeInterval:(kMondayOffset + weekday - todayComponents.weekday)*kSecondsInDay sinceDate:today]];
-    }
-
-    self.dates = dates;
-}
-
-- (void)fillCurrentMonth
-{
-    NSDate *today = [NSDate date];
-    NSCalendar *calendar = [NSCalendar currentCalendar];
-    NSRange days = [calendar rangeOfUnit:NSDayCalendarUnit
-                                  inUnit:NSMonthCalendarUnit
-                                 forDate:today];
-    NSDateComponents *todayComponents = [calendar components:NSCalendarUnitYear|NSCalendarUnitMonth fromDate:today];
-
-    NSMutableArray *dates = [[NSMutableArray alloc] init];
-    for (NSInteger day = 1; day <= days.length; day++) {
-        [todayComponents setDay:day];
-        [dates addObject:[calendar dateFromComponents:todayComponents]];
-    }
-
-    self.dates = dates;
-}
-
-- (void)fillCurrentYear
-{
-    NSDate *today = [NSDate date];
-    NSCalendar *calendar = [NSCalendar currentCalendar];
-    NSDateComponents *todayComponents = [calendar components:NSCalendarUnitYear fromDate:today];
-
-    NSMutableArray *dates = [[NSMutableArray alloc] init];
-
-    NSUInteger daysInYear = [self numberOfDaysInThisYear];
-    for (NSInteger day = 1; day <= daysInYear; day++) {
-        [todayComponents setDay:day];
-        [dates addObject:[calendar dateFromComponents:todayComponents]];
-    }
-
-    self.dates = dates;
-}
-
-- (NSUInteger)numberOfDaysInThisYear
-{
-    NSCalendar *calendar = [NSCalendar currentCalendar];
-    NSDate *startOfYear;
-    NSTimeInterval lengthOfYear;
-    [calendar rangeOfUnit:NSYearCalendarUnit
-                startDate:&startOfYear
-                 interval:&lengthOfYear
-                  forDate:[NSDate date]];
-    NSDate *endOfYear = [startOfYear dateByAddingTimeInterval:lengthOfYear];
-    NSDateComponents *components = [calendar components:NSDayCalendarUnit
-                                         fromDate:startOfYear
-                                           toDate:endOfYear
-                                          options:0];
-    return [components day];
-}
 
 - (void)selectDate:(NSDate *)date
 {
@@ -237,12 +143,14 @@ const CGFloat kDIDatepickerSpaceBetweenItems = 15.;
         currentItemXPosition += kDIDatepickerItemWidth + kDIDatepickerSpaceBetweenItems;
     }
 
-    self.datesScrollView.contentSize = CGSizeMake(currentItemXPosition, self.frame.size.height);
+    self.datesScrollView.contentSize = CGSizeMake(currentItemXPosition, self.datesScrollView.frame.size.height);
 }
 
 - (void)updateSelectedDate:(DIDatepickerDateView *)dateView
 {
     self.selectedDate = dateView.date;
+
+    [self sendActionsForControlEvents:UIControlEventValueChanged];
 }
 
 - (void)updateSelectedDatePosition

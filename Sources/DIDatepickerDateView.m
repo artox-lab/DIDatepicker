@@ -50,16 +50,16 @@ const CGFloat kDIDatepickerSelectionLineWidth = 51.;
     [dateFormatter setDateFormat:@"MMMM"];
     NSString *monthFormattedString = [[dateFormatter stringFromDate:date] uppercaseString];
 
-    NSMutableAttributedString *dateString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@ %@\n%@", dayFormattedString, [dayInWeekFormattedString uppercaseString], monthFormattedString]];
+    NSMutableAttributedString *dateString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@ %@\n%@", dayFormattedString, dayInWeekFormattedString, monthFormattedString]];
 
     [dateString addAttributes:@{
-                                NSFontAttributeName: [UIFont fontWithName:@"HelveticaNeue-Thin" size:20],
+                                NSFontAttributeName: [UIFont fontWithName:@"HelveticaNeue-Thin" size:22],
                                 NSForegroundColorAttributeName: [UIColor blackColor]
                                 }
                         range:NSMakeRange(0, dayFormattedString.length)];
 
     [dateString addAttributes:@{
-                                NSFontAttributeName: [UIFont fontWithName:@"HelveticaNeue-Thin" size:8],
+                                NSFontAttributeName: [UIFont fontWithName:@"HelveticaNeue-Thin" size:13],
                                 NSForegroundColorAttributeName: [UIColor blackColor]
                                 }
                         range:NSMakeRange(dayFormattedString.length + 1, dayInWeekFormattedString.length)];
@@ -72,7 +72,7 @@ const CGFloat kDIDatepickerSelectionLineWidth = 51.;
 
     if ([self isWeekday:date]) {
         [dateString addAttribute:NSFontAttributeName
-                           value:[UIFont fontWithName:@"HelveticaNeue-Medium" size:8]
+                           value:[UIFont fontWithName:@"HelveticaNeue-Medium" size:13]
                            range:NSMakeRange(dayFormattedString.length + 1, dayInWeekFormattedString.length)];
     }
 
